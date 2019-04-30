@@ -1,0 +1,85 @@
+\documentclass[11pt,letterpaper]{article}
+%\usepackage[hyperref]{emnlp2018}
+%\usepackage[T1]{fontenc}	%had to add this b/c TeXStudio behaving badly on my ThinkPad only)
+\usepackage{times}
+\usepackage{fullpage}
+\usepackage{latexsym}
+\usepackage{tabu}
+\usepackage{booktabs}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{graphicx}
+
+\usepackage{url}
+%\usepackage{tikz}
+
+%\aclfinalcopy % Uncomment this line for the final submission
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+%\newcommand\BibTeX{B{\sc ib}\TeX}
+%\newcommand\confname{CSC 583}
+%\newcommand\conforg{SIGDAT}
+
+
+
+\title{CSC 583: Programming Project 1}
+
+\author{Andrew Zupon \\
+%	Department of Linguistics\\
+%	University of Arizona \\
+%	%Affiliation / Address line 3 \\
+%	{\tt zupon@email.arizona.edu} \\
+	%  \And
+	%  Second Author \\
+	%  Affiliation / Address line 1 \\
+	%  Affiliation / Address line 2 \\
+	%  Affiliation / Address line 3 \\
+	%  {\tt email@domain} \\
+}
+
+\date{}
+
+\begin{document}
+	\maketitle
+	
+%	\begin{abstract}
+%		%The abstract will go here!
+%		%It should be no longer than 200 words.
+%		In this paper, I present an method for using the Mean Teacher neural network architecture \citep{NIPS2017_6719} to improve part-of-speech tagging in Scottish Gaelic, a low-resource language. I introduce noise during training in the form of tagged Irish data, helping the tagger generalize better over the limited Scottish Gaelic data.
+%	\end{abstract}
+
+\section{Code Description}
+	
+	
+\section{Indexing and Retrieval}
+This section describes how I built the various indexes used for retrieval, along with how I built the queries from the Jeopardy questions and categories.
+
+First I will discuss how I preprocessed the Wikipedia documents.
+The first step was to gather the directory into a list of files, then loop through each file.
+Within each file, I joined the lines into one long string and then split on \texttt{\textbackslash{}n\textbackslash{}n[[}, since each Wikipedia page title is enclosed in double brackets and follows the preceding page after two empty lines.
+
+
+
+I ended up building three different indexes:  one that used stemming (\texttt{indexStems}), one that used lemmatization (\texttt{indexLemmas}), and one that used neither stemming nor lemmatization (\texttt{indexPlain}). The stemming index uses Lucene's StandardAnalyzer, while the latter two use the WhitespaceAnalyzer.
+
+
+
+\section{Measuring Performance}
+
+
+
+\section{Changing the Scoring Function}
+
+
+
+\section{Error Analysis}
+
+
+
+\section{Improving Retrieval}
+\end{document}

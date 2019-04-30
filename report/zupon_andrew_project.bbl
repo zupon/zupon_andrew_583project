@@ -1,0 +1,19 @@
+\begin{thebibliography}{2}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Manning(2011)}]{10.1007/978-3-642-19400-9_14}
+Christopher~D. Manning. 2011.
+\newblock Part-of-speech tagging from 97{\%} to 100{\%}: Is it time for some
+  linguistics?
+\newblock In \emph{Computational Linguistics and Intelligent Text Processing},
+  pages 171--189, Berlin, Heidelberg. Springer Berlin Heidelberg.
+
+\bibitem[{Tarvainen and Valpola(2017)}]{NIPS2017_6719}
+Antti Tarvainen and Harri Valpola. 2017.
+\newblock Mean teachers are better role models: Weight-averaged consistency
+  targets improve semi-supervised deep learning results.
+\newblock In I.~Guyon, U.~V. Luxburg, S.~Bengio, H.~Wallach, R.~Fergus,
+  S.~Vishwanathan, and R.~Garnett, editors, \emph{Advances in Neural
+  Information Processing Systems 30}, pages 1195--1204. Curran Associates, Inc.
+
+\end{thebibliography}
