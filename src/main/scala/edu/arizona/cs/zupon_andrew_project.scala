@@ -41,6 +41,7 @@ object QueryEngine {
   def main(args: Array[String]): Unit = {
     try {
 
+      // example query that will run after building the index
       val query: List[String] = List("submarine", "author")
 
 
@@ -54,13 +55,13 @@ object QueryEngine {
       val objQueryEngine: QueryEngine = new QueryEngine(lemmatized)
 
       // check if index exists before building index
-//      if(!DirectoryReader.indexExists(objQueryEngine.index)) objQueryEngine.buildIndex()
+      if(!DirectoryReader.indexExists(objQueryEngine.index)) objQueryEngine.buildIndex()
 
       println("Default Similarity Answer ('submarine author'):")
       val ans: ListBuffer[ResultClass] = objQueryEngine.runQ(query)
       PrintIfHits(ans)
 
-      println("Classic Similarity Answer ('submarine author'):")
+      println("Modified Similarity Answer ('submarine author'):")
       val ans2: ListBuffer[ResultClass] = objQueryEngine.runQclassic(query)
       PrintIfHits(ans2)
 
@@ -69,11 +70,12 @@ object QueryEngine {
     }
   }
 
+
   def PrintIfHits(ans: ListBuffer[ResultClass]): Unit = {
-    // prints results if they exist, prints "no hits" if there are no results
+    // prints top 10 results if they exist, prints "no hits" if there are no results
     if (ans.nonEmpty) {
       var i = 1
-      for (x <- ans) {
+      for (x <- ans.slice(0,10)) {
         println("Hit " + i + ": " + "\tDocName: " + x.DocName.get("docid") + "\tDocScore: " + x.doc_score)
         i += 1
       }
@@ -92,11 +94,13 @@ class QueryEngine(lemmatized: String) {
     writer.addDocument(doc)
   }
 
+
   val allFiles: List[File] = getListOfFiles("./src/main/resources/wiki-subset-20140602")
   val testFile: List[File] = getListOfFiles("./src/main/resources/wiki-example")
 
-  // get a list of files in a directory, taken from Alvin Alexander's Scala Cookbook site
+
   def getListOfFiles(dir: String):List[File] = {
+    // get a list of files in a directory, taken from Alvin Alexander's Scala Cookbook site
     val d = new File(dir)
     if (d.exists && d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
@@ -121,7 +125,6 @@ class QueryEngine(lemmatized: String) {
       val fileSource = Source.fromFile(file)
       // make an array of each file, where each entry is a document, make some regex replacements
       val fileAsArray = ("\n\n"+fileSource.getLines.mkString("\n")).replaceAll(fileRep,"").split("\n\n\\[\\[(?!(File|Image))")
-
       for (doc <- fileAsArray) {
         // make other regex replacements, add SEPARATORLOL between title and text of each page
         val docAsString = doc.replaceAll(refRep,"").replaceAll(tplRep, "").replaceAll(imageRep,"").replaceFirst("\\]\\]","SEPARATORLOL").replaceAll("\n"," ")
@@ -164,9 +167,7 @@ class QueryEngine(lemmatized: String) {
     val proc:Processor =  if (lemmatized == "lemmas" || lemmatized == "plain") new CoreNLPProcessor() else null
 
     for(line <- allFilesForProcessing) {
-
       val pageTitle = line.split("SEPARATORLOL").head      // the title of the wikipedia page
-
       val pageText = line.split("SEPARATORLOL").tail.mkString(" ")      // the text of the wikipedia page
 
       // get lemmas if using lemmatization
@@ -206,7 +207,7 @@ class QueryEngine(lemmatized: String) {
 
       val duration = (System.nanoTime - t1) / 1e9d
       println("Running for "+duration)
-      println(writer.numDocs+" docs indexed so far!")
+      println(writer.numDocs+" doc(s) indexed so far!")
     }
 
     println("Finished indexing with "+analyzer)
@@ -216,6 +217,7 @@ class QueryEngine(lemmatized: String) {
 
 
   def runQuery(query: String): ListBuffer[ResultClass] = {
+    // run query with default similarity
     var doc_score_list = new ListBuffer[ResultClass]()
     // query parser
     val escapedQuery = QueryParserBase.escape(query)
@@ -237,7 +239,9 @@ class QueryEngine(lemmatized: String) {
     doc_score_list
   }
 
+
   def runQueryClassic(query: String): ListBuffer[ResultClass] = {
+    // run query with modified similarity
     var doc_score_list = new ListBuffer[ResultClass]()
     // query parser
     val escapedQuery = QueryParserBase.escape(query)
@@ -265,13 +269,15 @@ class QueryEngine(lemmatized: String) {
 
 
   def runQ(query: List[String]): ListBuffer[ResultClass] = {
+    // run query with default similarity
     val queryInput = query.mkString(" ")
 //    val queryInput = """(docid:""""+query.mkString(" ")+") (text:"+query.mkString(" ")+"""")^2"""
-    //    println("Query Input:\t"+queryInput)
     runQuery(queryInput)
   }
 
+
   def runQclassic(query: List[String]): ListBuffer[ResultClass] = {
+    // run query with modified similarity
     val queryInput = query.mkString(" ")
 //    val queryInput = """(docid:""""+query.mkString(" ")+") (text:"+query.mkString(" ")+"""")^2"""
     //    val queryInput = """docid:""""+query.mkString(" ")+"""" OR text:""""+query.mkString(" ")+"""""""
