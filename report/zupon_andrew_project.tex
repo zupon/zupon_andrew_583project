@@ -56,9 +56,15 @@
 \section{Code Description}
 
 \begin{itemize}
-	\item Make sure all wiki test docs are in \texttt{src/main/resources/wiki-subset- 20140602}
+	\item Make sure all wiki test docs are in \texttt{src/main/resources/wiki-subset- 20140602} if you want to build an index.
 	
-	\item Unzip all three index files in \texttt{src/main/resources/}
+	\item Unzip the indexes you want to use in \texttt{src/main/resources/}
+	
+	\item The indexes will only build if they don't already exist. To build the index, choose which kind you want (``stems'', ``lemmas'', or ``plain'') on line 52 of \texttt{zupon\_andrew\_project.scala} and run \texttt{sbt run}. This will take between 1 and 2 hours depending on the index and hardware.
+	
+	\item To test the system using the ``stems'' index (the best performing one), run \texttt{sbt test}. This will print results for the na\"ive and improved models using both default and modified similarity functions. If the index doesn't already exist, this will try to build it!
+	
+	\item If you want to test the model with different indexes than ``stems'', you'll need to uncomment lines in \texttt{QueryEngineTest.scala} between approximately lines 169 and 212.
 \end{itemize}
 	
 	
@@ -95,7 +101,7 @@ I split the file on empty lines, so each line contained the question category an
 I then simply concatenated all the words in the category and clue into a string and fed them to Lucene as an OR query.
 For the queries, there was a funneling step similar to when I built the index.
 Depending on if I wanted to search using stems, lemmas, or neither (plain), it will initialize the appropriate QueryEngine object and use the corresponding Analyzer (Standard or Whitespace) and direct it to the right index.
-Again, for this na\"ive approach I did not filter any stop words from the query, but the query does include both the category and the clue.
+Again, for this na\"ive approach I did not filter any stop words from the query, but I did delete the sequence \texttt{(Alex:} from the clue, which indicates a comment from the host Alex Trebek and does not actually contribute to the answer. Including \texttt{Alex} in the clue might negatively affect the results.
 
 
 
