@@ -173,7 +173,7 @@ class QueryEngineTest extends FunSuite{
 //      println("Using BM25 similarity:")
       val ansStems = objQueryEngineStems.runQ(textAndCategory)
       correctStems += compareWithAnswer(textAndCategory,answer,ansStems,"stems")
-//      val ansLemmas = objQueryEngineLemmas.runQ(searchWords)
+//      val ansLemmas = objQueryEngineLemmas.runQ(textAndCategory)
 //      correctLemmas += compareWithAnswer(textAndCategory,answer,ansLemmas,"lemmas")
 //      val ansPlain = objQueryEnginePlain.runQ(textAndCategory)
 //      correctPlain += compareWithAnswer(textAndCategory,answer,ansPlain,"plain")

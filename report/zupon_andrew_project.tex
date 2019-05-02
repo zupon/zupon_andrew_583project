@@ -62,7 +62,7 @@
 	
 	\item The indexes will only build if they don't already exist. To build the index, choose which kind you want (``stems'', ``lemmas'', or ``plain'') on line 52 of \texttt{zupon\_andrew\_project.scala} and run \texttt{sbt run}. This will take between 1 and 2 hours depending on the index and hardware.
 	
-	\item To test the system using the ``stems'' index (the best performing one), run \texttt{sbt test}. This will print results for the na\"ive and improved models using both default and modified similarity functions. If the index doesn't already exist, this will try to build it!
+	\item To test the system using the ``stems'' index (the best performing one), run \texttt{sbt test}. This will print results for the na\"ive and improved models using default and modified similarity functions. This should take under a minute. If the index doesn't already exist, this will try to build it (and take a long time)!
 	
 	\item If you want to test the model with different indexes than ``stems'', you'll need to uncomment lines in \texttt{QueryEngineTest.scala} between approximately lines 169 and 212.
 \end{itemize}
@@ -119,12 +119,12 @@ So far, we see that stemming performs the best, followed by lemmatization.
 \begin{table}[h!]
 \begin{center}
 \begin{tabu} to \textwidth {cc}\toprule
-Index Type & Precision@1 \\ \midrule
-Stems & 0.18 \\
+Index & P@1 \\ \midrule
+\textbf{Stems} & \textbf{0.18} \\
 Lemmas & 0.16 \\
 Plain & 0.15 \\\bottomrule
 \end{tabu}
-\caption{Na\"ive results with default scoring. Results are Precision at 1 out of 100 test sentences.}
+\caption{Precision at 1 scores for the na\"ive model with default BM25 scoring ($k_1=1.2$, $b=0.75$).}
 \label{table1}
 \end{center}
 \end{table}
@@ -145,31 +145,40 @@ Setting $b = 0.1$ yielded improved results compared to the na\"ive approach, as 
 \begin{table}[h!]
 	\begin{center}
 		\begin{tabu} to \textwidth {cc}\toprule
-			Index Type & Precision@1, $b=0.1$ \\ \midrule
-			Stems & 0.39 \\
+			Index & P@1 \\ \midrule
+			\textbf{Stems} & \textbf{0.39} \\
 			Lemmas & 0.21 \\
 			Plain & 0.21 \\\bottomrule
 		\end{tabu}
-		\caption{Results with modified BM25 scoring. Results are Precision at 1 out of 100 test sentences.}
+		\caption{Precision at 1 scores for the na\"ive model with modified BM25 scoring ($k_1=1.2$, $b=0.1$).}
 		\label{table2}
 	\end{center}
 \end{table}
 
 
 By setting $b = 0.1$, I penalize longer pages less.
-Considering the short Wikipedia pages are often stubs, it seems more likely that a longer page will be more relevant for a \textit{Jeopardy!}~answer than a shorter page. This is just a hypothesis for now.
+Considering the short Wikipedia pages are often stubs, it seems more likely that a longer page will be more relevant for a \textit{Jeopardy!}~answer than a shorter page.
+This is just a hypothesis for now.
 
 
 \section{Error Analysis}
 
-\begin{table*}[tbh!]
+In this section, I will describe two classes of errors that I found from the na\"ive approach, discuss ways possible ways to address them, and compare results so far between my three indexes.
+
+One class of errors is shown in Figure~\ref{table-repeat}. Figure~\ref{table-repeat} shows the query, which includes the clue and the category, the correct answer, and the top 10 hits using the modified BM25 similarity function for two different \textit{Jeopardy!}~questions.
+We see in both examples that the correct answer is in the top 10 hits (number 3 and number 2, respectively), so with some modification we might be able to promote it to the top hit.
+In addition, the top hit includes one or more words present in the clue itself.
+This is unlikely to be the case in a real \textit{Jeopardy!}~question; the point is to guess the right answer, so including the answer in the question does not make sense in the context of the game.
+
+
+\begin{figure*}[b]
 	\small
 \begin{verbatim}
-Query:  \texttt{Not to be confused with karma, krama is a popular 
-accessory sold in cambodia; the word means "scarf" in this national
-language of Cambodia CAMBODIAN HISTORY \& CULTURE}
+Query:  Not to be confused with karma, krama is a popular accessory sold in
+cambodia; the word means "scarf" in this national language of Cambodia CAMBODIAN
+HISTORY & CULTURE
 
-Correct answer: \texttt{khmer language}
+Correct answer: khmer language
 
 Using modified BM25 Similarity:
 Hit 1:  DocName: History of Cambodia    DocScore: 59.53534698486328
@@ -203,9 +212,26 @@ Hit 10: DocName: County Mayo    DocScore: 28.2568359375
 \normalsize
 \caption{Examples where the highest-rated answer contains a word or words present in the clue. \textit{Jeopardy!}~answers are unlikely to contain words that are in the clue (excepting punny categories), so skipping results that \textit{do} contain overlapping words might fix these errors.}
 \label{table-repeat}
-\end{table*}
+\end{figure*}
 
-\begin{table*}[tbh!]
+
+One way we could address this class of errors and promote the correct answer is to take the context of the game into consideration.
+If the top hit contains too many words that overlap with the clue, move on to the next hit until you reach one that does not overlap with the clue.
+
+
+
+A second class of errors is shown in Figure~\ref{table-category}. In these examples, the words in the clue and category are not informative enough as a bag of words to get the right answer.
+In this case, the correct answer is not found in the top ten hits.
+
+One way to address this is to use phrase queries.
+In these clues, the song titles are provided in double quotes.
+Taken as a bag of words, the words \texttt{rock}, \texttt{with}, and \texttt{you}, together with the rest of the query, don't really help identify the song.
+However, if we treat ``Rock With You'' as a phrase query and enforce that the words show up next to each other, the correct answer will more likely show up near the top.
+
+
+
+
+\begin{figure*}[tb]
 	\small
 \begin{verbatim}
 Query:  1980: "Rock With You" '80s NO.1 HITMAKERS
@@ -241,10 +267,75 @@ Hit 10: DocName: NBC    DocScore: 22.757150650024414
 \normalsize
 \caption{Examples of where the words in the clue and category are not informative enough to get the right answer. Could possible be solved with phrase queries using the song title given in the clue.}
 \label{table-category}
-\end{table*}
+\end{figure*}
+
+
+
+
+Finally, the results in Table~\ref{table1} and Table~\ref{table2} show that stemming performs better than either lemmatization or doing neither stemming nor lemmatization.
+The latter two methods perform similarly for both conditions, and while stemming only performs 2--3 points better with default BM25, the difference jumps up to 18 points when using my modified BM25 scoring.
+The reason doing nothing performs worse seems obvious; by not normalizing in any way, a close match that differs slightly in form will not count as a match.
+
+
+Why lemmatization performs similarly, or even worse than ``plain'' with modified similarity, is somewhat less clear.
+One possibility is that I used Lucene's WhitespaceAnalyzer both for indexing and for processing the query.
+For the index, this was not a problem, since the Wikipedia page text was tokenized and lemmatized before being joined with spaces.
+However, the query was not processed in the same way.
+The query words were simply split on spaces, without being tokenized first.
+This can be a problem for cases like \texttt{church,}, where if tokenized, the \texttt{,} will be separated from \texttt{church}.
+If not tokenized first, the whole string \texttt{church,} will be sent to Lucene as a unit and might end up not matching the string \texttt{church}.\footnote{I encountered this with my improved model, where \texttt{church} was not considered to overlap with \texttt{church,}, yielding a wrong answer for the top hit.}
+
+
+
 
 \section{Improving Retrieval}
 
+In this section, I describe my attempt to improve the retrieval system by addressing the first of the error categories discussed above.
 
+As mentioned before, one way to address the problem of the answer containing words from the query is to simply skip over results that contain too many words from the query.
+I implemented this in two ways.
+First, I filter the query to only include words with a subset of part-of-speech tags.
+This is to eliminate meaningless overlap, such as if the answer and the query both had the word \textit{to} or shared punctuation.
+The tags I use include all tags for nouns, verbs, and cardinal numbers.
+I experimented with other tags such as adjectives and adverbs, but adding those did not change the performance of the system.
+
+After filtering the query, while comparing returned results with the correct answer, the model will keep track of how many overlapping words there are between the correct answer and the top hit.
+For my best model (reported here), the overlap had to be less than one.
+That is, if the top hit and the answer shared even one word (with the relevant tag), the hit was rejected.
+Then, the system considers the next hit on the list in the same way, and so on until the current `top' hit does not overlap with the answer.
+
+This approach touches on an important linguistic principle (in addition to making sense for \textit{Jeopardy!}).
+Mainly, certain words are important for carrying the central meaning of a sentence, while others are not.
+These (typically function) words are called stop words.
+For example, the word \textit{the} in a query is likely to be uninformative, since it occurs in practically every document.
+When originally processing the Wikipedia documents for building the indexes and when building the queries, I did not filter out stop words.
+Despite ignoring this principle originally, post-hoc filtering based on part-of-speech tag ultimately resulted in my best-performing system.
+
+
+Results of my improved model, using both the default BM25 scoring function and my modified BM25 scoring function, are given in Table~\ref{table-improved}.
+
+
+
+\begin{table}[tb!]
+	\begin{center}
+		\begin{tabu} to \textwidth {ccc} \toprule
+			\multirow{2}{*}{Index} & w/ Default  & w/ Modified \\
+			{} & Similarity & Similarity \\\midrule
+			\textbf{Stems} & \textbf{0.25} & \textbf{0.43}\\
+			Lemmas & 0.19 & 0.32\\
+			Plain & 0.21 & 0.34\\ \bottomrule
+		\end{tabu}
+	\end{center}
+\caption{Precision at 1 scores for the improved system for the stems, lemmas, and plain indexes, comparing the default BM25 similarity function with my modified BM25 similarity function.}
+\label{table-improved}	
+\end{table}
+
+
+\section{Conclusion}
+
+Overall, the best retrieval system uses an index based on stemming (with Lucene's StandardAnalyzer), a modified BM25 scoring function where $b=0.1$, and post-hoc filtering of the query based on part-of-speech tags and skipping hits that have too much overlap with the original query.
+
+There are other clear ways to try to improve this system, including introducing phrase queries to address the second error class I identified, or removing stop words from the original index.
+I reserve these for future work.
 
 \end{document}

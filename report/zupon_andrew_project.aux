@@ -16,7 +16,8 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
-\newlabel{table1}{{1}{2}{Na\"ive results with default scoring. Results are Precision at 1 out of 100 test sentences}{table.1}{}}
-\newlabel{table2}{{2}{2}{Results with modified BM25 scoring. Results are Precision at 1 out of 100 test sentences}{table.2}{}}
-\newlabel{table-repeat}{{3}{3}{Examples where the highest-rated answer contains a word or words present in the clue. \textit {Jeopardy!}~answers are unlikely to contain words that are in the clue (excepting punny categories), so skipping results that \textit {do} contain overlapping words might fix these errors}{table.3}{}}
-\newlabel{table-category}{{4}{4}{Examples of where the words in the clue and category are not informative enough to get the right answer. Could possible be solved with phrase queries using the song title given in the clue}{table.4}{}}
+\newlabel{table1}{{1}{2}{Precision at 1 scores for the na\"ive model with default BM25 scoring ($k_1=1.2$, $b=0.75$)}{table.1}{}}
+\newlabel{table2}{{2}{2}{Precision at 1 scores for the na\"ive model with modified BM25 scoring ($k_1=1.2$, $b=0.1$)}{table.2}{}}
+\newlabel{table-improved}{{3}{4}{Precision at 1 scores for the improved system for the stems, lemmas, and plain indexes, comparing the default BM25 similarity function with my modified BM25 similarity function}{table.3}{}}
+\newlabel{table-repeat}{{1}{5}{Examples where the highest-rated answer contains a word or words present in the clue. \textit {Jeopardy!}~answers are unlikely to contain words that are in the clue (excepting punny categories), so skipping results that \textit {do} contain overlapping words might fix these errors}{figure.1}{}}
+\newlabel{table-category}{{2}{6}{Examples of where the words in the clue and category are not informative enough to get the right answer. Could possible be solved with phrase queries using the song title given in the clue}{figure.2}{}}
