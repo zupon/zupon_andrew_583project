@@ -3,14 +3,17 @@ Watson project for CSC 583 Text Retrieval and Web Search
 
 # Code Instructions
 
-## TL;DR
+### TL;DR
 - Make sure the resources (indexes and wiki files) are in the right place.
 - Test the system on `stems` index by running `sbt test`
 
-
+---
 ### Resources
 - Make sure all wiki test docs are in `src/main/resources/wiki-subset-20140602`
 - Unzip indexes to `src/main/resources`
+- stems index:  https://drive.google.com/open?id=1VSgYDaGKwO8ajUY1uANaUoGubNhMKEz_
+- lemmas index:  https://drive.google.com/open?id=1opI_Nt6FvS68FO7vd5d6tWF3VuhZjX6-
+- plain index:  https://drive.google.com/open?id=1-gkRA4fZERAt8zR6DqLO8VgbzlrPN7hA
 
 
 ### Building the indexes
